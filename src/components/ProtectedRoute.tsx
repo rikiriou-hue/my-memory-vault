@@ -8,19 +8,19 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const getInitialSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      setSession(data.session);
-      setLoading(false);
-    };
-
-    getInitialSession();
-
+    // Set up listener FIRST
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session);
+        setLoading(false);
       }
     );
+
+    // Then check current session
+    supabase.auth.getSession().then(({ data }) => {
+      setSession(data.session);
+      setLoading(false);
+    });
 
     return () => {
       listener.subscription.unsubscribe();
