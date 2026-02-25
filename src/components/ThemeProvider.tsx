@@ -17,10 +17,15 @@ export const useTheme = () => useContext(ThemeContext);
 
 const THEME_CLASSES: ThemeName[] = ["romantic-rose", "nature-memory", "ocean-dream", "midnight-vintage"];
 
+const isThemeName = (value: string): value is ThemeName =>
+  THEME_CLASSES.includes(value as ThemeName);
+
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [theme, setThemeState] = useState<ThemeName>("romantic-rose");
 
   useEffect(() => {
+    applyTheme("romantic-rose");
+
     const load = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
@@ -29,8 +34,8 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
         .select("theme")
         .eq("user_id", session.user.id)
         .single();
-      if (data?.theme) {
-        applyTheme(data.theme as ThemeName);
+      if (data?.theme && isThemeName(data.theme)) {
+        applyTheme(data.theme);
       }
     };
     load();
@@ -42,12 +47,13 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
           .select("theme")
           .eq("user_id", session.user.id)
           .single();
-        if (data?.theme) {
-          applyTheme(data.theme as ThemeName);
+        if (data?.theme && isThemeName(data.theme)) {
+          applyTheme(data.theme);
+          return;
         }
-      } else {
-        applyTheme("romantic-rose");
       }
+
+      applyTheme("romantic-rose");
     });
 
     return () => subscription.unsubscribe();
