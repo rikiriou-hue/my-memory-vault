@@ -54,8 +54,13 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   }, []);
 
   const applyTheme = (t: ThemeName) => {
-    THEME_CLASSES.forEach((c) => document.body.classList.remove(`theme-${c}`));
-    document.body.classList.add(`theme-${t}`);
+    const targets = [document.documentElement, document.body];
+
+    targets.forEach((target) => {
+      THEME_CLASSES.forEach((c) => target.classList.remove(`theme-${c}`));
+      target.classList.add(`theme-${t}`);
+    });
+
     setThemeState(t);
   };
 

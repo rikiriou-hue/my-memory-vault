@@ -134,6 +134,7 @@ const Profile = () => {
         .eq("user_id", (await supabase.auth.getUser()).data.user?.id!);
 
       if (error) throw error;
+      setTheme(selectedTheme);
       toast.success("Profil berhasil disimpan");
     } catch (err: any) {
       toast.error(err.message || "Gagal menyimpan profil");
