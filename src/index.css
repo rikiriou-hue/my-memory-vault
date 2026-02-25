@@ -229,6 +229,11 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', system-ui, sans-serif;
+    transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease;
+  }
+
+  *, *::before, *::after {
+    transition: background-color 300ms ease, color 300ms ease, border-color 300ms ease, box-shadow 300ms ease;
   }
 
   h1, h2, h3, h4, h5, h6 {
