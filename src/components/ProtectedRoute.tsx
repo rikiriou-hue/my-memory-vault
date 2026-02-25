@@ -10,42 +10,29 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let isMounted = true;
 
-    const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
-    const getSessionWithTimeout = async () => {
-      return Promise.race([
-        supabase.auth.getSession(),
-        new Promise<{ data: { session: null } }>((resolve) =>
-          setTimeout(() => resolve({ data: { session: null } }), 1500)
-        ),
-      ]);
-    };
-
-    const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        if (!isMounted) return;
-        setSession(session);
-        setLoading(false);
-      }
-    );
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, nextSession) => {
+      if (!isMounted) return;
+      setSession(nextSession);
+      setLoading(false);
+    });
 
     const bootstrapSession = async () => {
       try {
-        for (let attempt = 0; attempt < 5; attempt++) {
-          const { data } = await getSessionWithTimeout();
-          if (!isMounted) return;
-
-          if (data.session) {
-            setSession(data.session);
-            setLoading(false);
-            return;
-          }
-
-          if (attempt < 4) await wait(200);
-        }
+        const {
+          data: { session: currentSession },
+          error,
+        } = await supabase.auth.getSession();
 
         if (!isMounted) return;
-        setSession(null);
+
+        if (error) {
+          console.error("Failed to read auth session:", error);
+          setSession(null);
+        } else {
+          setSession(currentSession);
+        }
       } catch (error) {
         console.error("Failed to read auth session:", error);
         if (!isMounted) return;
@@ -59,7 +46,7 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
 
     return () => {
       isMounted = false;
-      listener.subscription.unsubscribe();
+      subscription.unsubscribe();
     };
   }, []);
 
