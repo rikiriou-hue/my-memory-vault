@@ -10,6 +10,17 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     let isMounted = true;
 
+    const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    const getSessionWithTimeout = async () => {
+      return Promise.race([
+        supabase.auth.getSession(),
+        new Promise<{ data: { session: null } }>((resolve) =>
+          setTimeout(() => resolve({ data: { session: null } }), 1500)
+        ),
+      ]);
+    };
+
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         if (!isMounted) return;
@@ -18,11 +29,23 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
       }
     );
 
-    const getCurrentSession = async () => {
+    const bootstrapSession = async () => {
       try {
-        const { data } = await supabase.auth.getSession();
+        for (let attempt = 0; attempt < 5; attempt++) {
+          const { data } = await getSessionWithTimeout();
+          if (!isMounted) return;
+
+          if (data.session) {
+            setSession(data.session);
+            setLoading(false);
+            return;
+          }
+
+          if (attempt < 4) await wait(200);
+        }
+
         if (!isMounted) return;
-        setSession(data.session);
+        setSession(null);
       } catch (error) {
         console.error("Failed to read auth session:", error);
         if (!isMounted) return;
@@ -32,15 +55,10 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
       }
     };
 
-    void getCurrentSession();
-
-    const failSafeTimeout = window.setTimeout(() => {
-      if (isMounted) setLoading(false);
-    }, 2500);
+    void bootstrapSession();
 
     return () => {
       isMounted = false;
-      window.clearTimeout(failSafeTimeout);
       listener.subscription.unsubscribe();
     };
   }, []);

@@ -29,8 +29,8 @@ const Login = () => {
   // 🔥 LISTENER UNTUK OAUTH REDIRECT
   useEffect(() => {
     const { data: listener } = supabase.auth.onAuthStateChange(
-      (_event, session) => {
-        if (session) {
+      (event, session) => {
+        if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED") && session) {
           navigate("/dashboard", { replace: true });
         }
       }
@@ -67,7 +67,7 @@ const Login = () => {
 
         if (error) throw error;
         toast.success("Welcome back ❤️");
-        // Navigation handled by auth state listener to avoid redirect race conditions
+        navigate("/dashboard", { replace: true });
       }
     } catch (err: any) {
       toast.error(err.message);
