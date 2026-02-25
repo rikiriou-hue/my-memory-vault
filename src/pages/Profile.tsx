@@ -8,9 +8,41 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
-import { Camera, Loader2, Save, User } from "lucide-react";
+import { Camera, Loader2, Save, User, Check } from "lucide-react";
 import { toast } from "sonner";
 import { motion } from "framer-motion";
+import { useTheme, type ThemeName } from "@/components/ThemeProvider";
+
+const THEMES: { id: ThemeName; label: string; emoji: string; desc: string; colors: string[] }[] = [
+  {
+    id: "romantic-rose",
+    label: "Romantic Rose",
+    emoji: "🌹",
+    desc: "Warm vintage love diary",
+    colors: ["hsl(347,77%,50%)", "hsl(340,15%,6%)", "hsl(347,60%,65%)", "hsl(30,20%,88%)"],
+  },
+  {
+    id: "nature-memory",
+    label: "Nature Memory",
+    emoji: "🌿",
+    desc: "Forest journal aesthetic",
+    colors: ["hsl(120,30%,40%)", "hsl(90,12%,6%)", "hsl(120,25%,55%)", "hsl(60,15%,85%)"],
+  },
+  {
+    id: "ocean-dream",
+    label: "Ocean Dream",
+    emoji: "🌊",
+    desc: "Calm & dreamy",
+    colors: ["hsl(190,60%,45%)", "hsl(210,20%,7%)", "hsl(190,45%,60%)", "hsl(210,15%,88%)"],
+  },
+  {
+    id: "midnight-vintage",
+    label: "Midnight Vintage",
+    emoji: "✨",
+    desc: "Elegant & mysterious",
+    colors: ["hsl(42,70%,50%)", "hsl(30,8%,4%)", "hsl(42,55%,60%)", "hsl(40,30%,85%)"],
+  },
+];
 
 const Profile = () => {
   const [displayName, setDisplayName] = useState("");
@@ -19,22 +51,30 @@ const Profile = () => {
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { theme, setTheme } = useTheme();
+  const [selectedTheme, setSelectedTheme] = useState<ThemeName>(theme);
 
   useEffect(() => {
     const fetchProfile = async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("display_name, avatar_url")
+        .select("display_name, avatar_url, theme")
         .single();
 
       if (data) {
         setDisplayName(data.display_name || "");
         setAvatarUrl(data.avatar_url);
+        if (data.theme) setSelectedTheme(data.theme as ThemeName);
       }
       setLoading(false);
     };
     fetchProfile();
   }, []);
+
+  const handleThemePreview = (t: ThemeName) => {
+    setSelectedTheme(t);
+    setTheme(t);
+  };
 
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -72,7 +112,6 @@ const Profile = () => {
 
       setAvatarUrl(result.url);
 
-      // Save avatar URL immediately
       await supabase
         .from("profiles")
         .update({ avatar_url: result.url })
@@ -91,7 +130,7 @@ const Profile = () => {
     try {
       const { error } = await supabase
         .from("profiles")
-        .update({ display_name: displayName.trim() || null })
+        .update({ display_name: displayName.trim() || null, theme: selectedTheme })
         .eq("user_id", (await supabase.auth.getUser()).data.user?.id!);
 
       if (error) throw error;
@@ -170,6 +209,41 @@ const Profile = () => {
                 placeholder="Masukkan nama kamu..."
                 className="font-sans"
               />
+            </div>
+
+            {/* Theme Picker */}
+            <div className="space-y-3 mb-8">
+              <Label className="font-handwritten text-base">Tema Scrapbook</Label>
+              <div className="grid grid-cols-2 gap-3">
+                {THEMES.map((t) => (
+                  <motion.button
+                    key={t.id}
+                    whileHover={{ scale: 1.03 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => handleThemePreview(t.id)}
+                    className={`relative rounded-xl p-3 text-left transition-all duration-300 border-2 ${
+                      selectedTheme === t.id
+                        ? "border-primary shadow-[0_0_20px_hsl(var(--rose-glow))]"
+                        : "border-border hover:border-muted-foreground/30"
+                    }`}
+                    style={{ background: t.colors[1] }}
+                  >
+                    {selectedTheme === t.id && (
+                      <div className="absolute top-2 right-2 w-5 h-5 rounded-full flex items-center justify-center" style={{ background: t.colors[0] }}>
+                        <Check className="w-3 h-3 text-white" />
+                      </div>
+                    )}
+                    <span className="text-xl mb-1 block">{t.emoji}</span>
+                    <p className="font-handwritten text-sm" style={{ color: t.colors[3] }}>{t.label}</p>
+                    <p className="text-[10px] mt-0.5 opacity-60" style={{ color: t.colors[3] }}>{t.desc}</p>
+                    <div className="flex gap-1 mt-2">
+                      {t.colors.map((c, i) => (
+                        <div key={i} className="w-4 h-4 rounded-full border border-white/10" style={{ background: c }} />
+                      ))}
+                    </div>
+                  </motion.button>
+                ))}
+              </div>
             </div>
 
             <Button
