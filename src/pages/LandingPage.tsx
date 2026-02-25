@@ -1,7 +1,35 @@
 import { Link } from "react-router-dom";
-import { Heart, Camera, Mail, MapPin, Lock, Sparkles } from "lucide-react";
+import { Heart, Camera, Mail, MapPin, Lock, Sparkles, Quote } from "lucide-react";
 import { motion } from "framer-motion";
 import heroBg from "@/assets/hero-bg.jpg";
+
+const testimonials = [
+  {
+    name: "Aisyah & Rafi",
+    duration: "2 tahun bersama",
+    quote: "Our Story bikin kami bisa simpan semua momen manis tanpa takut hilang. Fitur future letters favorit kami! 💌",
+    avatar: "🥰",
+  },
+  {
+    name: "Dina & Ari",
+    duration: "6 bulan bersama",
+    quote: "Setiap hari kami saling kirim love notes. Rasanya seperti punya diary berdua yang cuma kami yang tahu.",
+    avatar: "💑",
+  },
+  {
+    name: "Maya & Bima",
+    duration: "1 tahun bersama",
+    quote: "Memory map-nya keren banget! Semua tempat kencan kami ada di satu peta. Jadi bisa nostalgia kapan aja.",
+    avatar: "✨",
+  },
+];
+
+const galleryImages = [
+  { rotate: "-3deg", caption: "Date night 🌙", emoji: "🍕", bg: "from-primary/20 to-accent/10" },
+  { rotate: "2deg", caption: "Weekend trip 🏖️", emoji: "🌊", bg: "from-accent/20 to-primary/10" },
+  { rotate: "-1deg", caption: "Anniversary 🎂", emoji: "🎉", bg: "from-primary/15 to-accent/15" },
+  { rotate: "3deg", caption: "Everyday love 🫶", emoji: "☕", bg: "from-accent/15 to-primary/20" },
+];
 
 const features = [
   {
@@ -148,6 +176,106 @@ const LandingPage = () => {
                 <p className="text-muted-foreground text-sm leading-relaxed">
                   {feature.desc}
                 </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== GALLERY ===== */}
+      <section className="py-24 px-6 overflow-hidden">
+        <div className="max-w-5xl mx-auto relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="text-center mb-16"
+          >
+            <h2 className="font-serif text-3xl md:text-5xl text-gradient-rose mb-4">
+              Momen-Momen Indah
+            </h2>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              Setiap foto punya cerita. Simpan semuanya di sini.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            {galleryImages.map((img, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, scale: 0.8, rotate: 0 }}
+                whileInView={{ opacity: 1, scale: 1, rotate: parseFloat(img.rotate) }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.1, duration: 0.5 }}
+                className="relative group"
+              >
+                <div className="scrapbook-photo aspect-square rounded-sm overflow-hidden">
+                  <div className={`w-full h-full bg-gradient-to-br ${img.bg} flex items-center justify-center`}>
+                    <span className="text-5xl md:text-6xl group-hover:scale-125 transition-transform duration-300">
+                      {img.emoji}
+                    </span>
+                  </div>
+                </div>
+                <p className="font-handwritten text-center text-sm text-muted-foreground mt-3">
+                  {img.caption}
+                </p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ===== TESTIMONIALS ===== */}
+      <section className="py-24 px-6 relative">
+        <div className="absolute bottom-0 right-0 w-[500px] h-[400px] bg-primary/5 rounded-full blur-[100px]" />
+
+        <div className="max-w-5xl mx-auto relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="text-center mb-16"
+          >
+            <h2 className="font-serif text-3xl md:text-5xl text-gradient-rose mb-4">
+              Kata Mereka
+            </h2>
+            <p className="text-muted-foreground max-w-md mx-auto">
+              Pasangan-pasangan yang sudah merawat cerita cinta mereka.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {testimonials.map((t, i) => (
+              <motion.div
+                key={t.name}
+                initial={{ opacity: 0, y: 40 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.15, duration: 0.6 }}
+                className="relative glass-card p-8"
+                style={{ transform: `rotate(${i % 2 === 0 ? "-1" : "1"}deg)` }}
+              >
+                {/* Tape */}
+                <div
+                  className="absolute -top-3 left-1/2 -translate-x-1/2 w-14 h-5 rounded-sm"
+                  style={{ background: "hsl(var(--tape) / 0.5)", transform: "translateX(-50%) rotate(-2deg)" }}
+                />
+
+                <Quote className="w-5 h-5 text-primary/40 mb-3" />
+
+                <p className="text-sm leading-relaxed text-foreground/80 mb-6 italic">
+                  "{t.quote}"
+                </p>
+
+                <div className="flex items-center gap-3">
+                  <span className="text-2xl">{t.avatar}</span>
+                  <div>
+                    <p className="font-handwritten text-lg">{t.name}</p>
+                    <p className="text-xs text-muted-foreground">{t.duration}</p>
+                  </div>
+                </div>
               </motion.div>
             ))}
           </div>
