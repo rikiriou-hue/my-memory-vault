@@ -77,6 +77,7 @@ const MemoryMap = () => {
   const [clickedPos, setClickedPos] = useState<{ lat: number; lng: number } | null>(null);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [viewPhoto, setViewPhoto] = useState<{ url: string; title: string } | null>(null);
 
   const fetchLocations = async () => {
     const { data, error } = await supabase
@@ -170,7 +171,8 @@ const MemoryMap = () => {
                             <img
                               src={loc.photo_url}
                               alt={loc.title}
-                              className="w-full h-32 object-cover rounded-sm mb-2"
+                              className="w-full h-32 object-cover rounded-sm mb-2 cursor-pointer hover:opacity-80 transition"
+                              onClick={() => setViewPhoto({ url: loc.photo_url!, title: loc.title })}
                             />
                           )}
                           <p className="font-bold text-sm">{getCategoryEmoji(loc.category)} {loc.title}</p>
@@ -237,6 +239,29 @@ const MemoryMap = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Photo Lightbox */}
+      {viewPhoto && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center p-4 cursor-pointer"
+          onClick={() => setViewPhoto(null)}
+        >
+          <div className="relative max-w-3xl max-h-[90vh] w-full" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => setViewPhoto(null)}
+              className="absolute -top-10 right-0 text-white hover:text-white/70 transition"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <img
+              src={viewPhoto.url}
+              alt={viewPhoto.title}
+              className="w-full max-h-[85vh] object-contain rounded-sm"
+            />
+            <p className="text-white text-center font-handwritten text-lg mt-2">{viewPhoto.title}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
