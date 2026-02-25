@@ -8,21 +8,39 @@ const ProtectedRoute = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Set up listener FIRST
+    let isMounted = true;
+
     const { data: listener } = supabase.auth.onAuthStateChange(
       (_event, session) => {
+        if (!isMounted) return;
         setSession(session);
         setLoading(false);
       }
     );
 
-    // Then check current session
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
-      setLoading(false);
-    });
+    const getCurrentSession = async () => {
+      try {
+        const { data } = await supabase.auth.getSession();
+        if (!isMounted) return;
+        setSession(data.session);
+      } catch (error) {
+        console.error("Failed to read auth session:", error);
+        if (!isMounted) return;
+        setSession(null);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    };
+
+    void getCurrentSession();
+
+    const failSafeTimeout = window.setTimeout(() => {
+      if (isMounted) setLoading(false);
+    }, 2500);
 
     return () => {
+      isMounted = false;
+      window.clearTimeout(failSafeTimeout);
       listener.subscription.unsubscribe();
     };
   }, []);

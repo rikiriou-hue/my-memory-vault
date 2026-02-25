@@ -67,7 +67,7 @@ const Login = () => {
 
         if (error) throw error;
         toast.success("Welcome back ❤️");
-        navigate("/dashboard", { replace: true });
+        // Navigation handled by auth state listener to avoid redirect race conditions
       }
     } catch (err: any) {
       toast.error(err.message);
