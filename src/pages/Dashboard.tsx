@@ -90,8 +90,8 @@ const Dashboard = () => {
     <div className="min-h-screen relative overflow-hidden bg-background">
 
       {/* ✨ DREAMY BACKGROUND GLOW */}
-      <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] bg-rose-400/10 rounded-full blur-[120px]" />
-      <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] bg-orange-300/10 rounded-full blur-[120px]" />
+      <div className="absolute top-[-200px] left-[-200px] w-[600px] h-[600px] bg-primary/10 rounded-full blur-[120px]" />
+      <div className="absolute bottom-[-200px] right-[-200px] w-[600px] h-[600px] bg-accent/10 rounded-full blur-[120px]" />
 
       {/* 🌸 Floating Stickers */}
       <span className="absolute top-16 left-12 text-4xl opacity-20 rotate-12">🌸</span>
@@ -105,12 +105,12 @@ const Dashboard = () => {
 
           {/* 💖 HERO */}
           <div className="text-center mb-20">
-            <h1 className="text-6xl md:text-7xl text-rose-300 drop-shadow-lg mb-6">
+            <h1 className="text-6xl md:text-7xl text-gradient-rose drop-shadow-lg mb-6">
               {coupleName}
             </h1>
 
             {startDate && (
-              <div className="font-handwritten text-3xl text-rose-200">
+              <div className="font-handwritten text-3xl text-primary/70">
                 <DayCounter initialStartDate={startDate} />
               </div>
             )}
@@ -129,21 +129,21 @@ const Dashboard = () => {
               >
                 <Link
                   to={card.to}
-                  className="relative block h-full p-8 bg-[hsl(20,20%,18%)] rounded-md shadow-2xl hover:scale-[1.04] transition-all duration-500"
+                  className="relative block h-full p-8 bg-card rounded-md shadow-2xl hover:scale-[1.04] transition-all duration-500"
                   style={{ transform: `rotate(${card.rotate})` }}
                 >
                   {/* Paper Layer */}
-                  <div className="absolute inset-2 bg-[hsl(20,15%,22%)] -z-10 rounded-md rotate-2"></div>
+                  <div className="absolute inset-2 bg-secondary -z-10 rounded-md rotate-2"></div>
 
                   {/* Tape */}
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-20 h-6 bg-yellow-200/60 rounded-sm rotate-[-2deg]"></div>
+                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 w-20 h-6 rounded-sm rotate-[-2deg]" style={{ background: 'hsl(var(--tape) / 0.6)' }}></div>
 
                   {/* Sticker */}
                   <div className="absolute -top-5 -right-4 text-3xl rotate-6">
                     {card.sticker}
                   </div>
 
-                  <div className="w-14 h-14 rounded-full bg-rose-300/20 flex items-center justify-center text-rose-300 mb-4">
+                  <div className="w-14 h-14 rounded-full bg-primary/20 flex items-center justify-center text-primary mb-4">
                     {card.icon}
                   </div>
 

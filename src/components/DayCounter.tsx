@@ -126,7 +126,7 @@ const DayCounter = ({ initialStartDate }: Props) => {
 
       <div
         className={`flex items-baseline justify-center gap-3 transition-all duration-700 ${
-          days === 365 ? "scale-110 animate-pulse text-pink-500" : ""
+          days === 365 ? "scale-110 animate-pulse text-primary" : ""
         }`}
       >
         <span className="text-7xl md:text-8xl font-serif font-bold text-gradient-rose">
@@ -142,7 +142,7 @@ const DayCounter = ({ initialStartDate }: Props) => {
       </p>
 
       {specialMessage && (
-        <div className="mt-6 text-lg text-pink-500 animate-fade-in">
+        <div className="mt-6 text-lg text-primary animate-fade-in">
           {specialMessage}
         </div>
       )}
