@@ -1,13 +1,13 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, Plus, X, Trash2 } from "lucide-react";
+import { X, Trash2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import PageTransition from "@/components/PageTransition";
-import EmptyState from "@/components/EmptyState";
 import { toast } from "sonner";
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import MemoryMapForm from "@/components/MemoryMapForm";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -58,6 +58,7 @@ interface MemoryLocation {
   memory_date: string;
   user_id: string;
   couple_id: string;
+  photo_url: string | null;
 }
 
 function ClickHandler({ onClick }: { onClick: (lat: number, lng: number) => void }) {
@@ -73,12 +74,7 @@ const MemoryMap = () => {
   const [locations, setLocations] = useState<MemoryLocation[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [category, setCategory] = useState("first_date");
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
   const [clickedPos, setClickedPos] = useState<{ lat: number; lng: number } | null>(null);
-  const [submitting, setSubmitting] = useState(false);
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
@@ -105,52 +101,7 @@ const MemoryMap = () => {
     setShowForm(true);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!clickedPos) {
-      toast.error("Tap pada peta untuk pilih lokasi");
-      return;
-    }
-    setSubmitting(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("Not authenticated");
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("couple_id")
-        .eq("user_id", user.id)
-        .single();
-
-      if (!profile?.couple_id) throw new Error("No couple found");
-
-      const { error } = await supabase.from("memory_locations").insert({
-        couple_id: profile.couple_id,
-        user_id: user.id,
-        title,
-        description: description || null,
-        category,
-        latitude: clickedPos.lat,
-        longitude: clickedPos.lng,
-        memory_date: date,
-      } as any);
-
-      if (error) throw error;
-      toast.success("Lokasi ditandai! 📍");
-      resetForm();
-      fetchLocations();
-    } catch (err: any) {
-      toast.error(err.message);
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
   const resetForm = () => {
-    setTitle("");
-    setDescription("");
-    setCategory("first_date");
-    setDate(new Date().toISOString().split("T")[0]);
     setClickedPos(null);
     setShowForm(false);
   };
@@ -171,7 +122,7 @@ const MemoryMap = () => {
 
   const center: [number, number] = locations.length > 0
     ? [locations[0].latitude, locations[0].longitude]
-    : [-6.2, 106.8]; // Default Jakarta
+    : [-6.2, 106.8];
 
   return (
     <div className="min-h-screen bg-background">
@@ -213,8 +164,15 @@ const MemoryMap = () => {
                       position={[loc.latitude, loc.longitude]}
                       icon={createEmojiIcon(getCategoryEmoji(loc.category))}
                     >
-                      <Popup>
+                      <Popup maxWidth={280}>
                         <div className="text-center">
+                          {loc.photo_url && (
+                            <img
+                              src={loc.photo_url}
+                              alt={loc.title}
+                              className="w-full h-32 object-cover rounded-sm mb-2"
+                            />
+                          )}
                           <p className="font-bold text-sm">{getCategoryEmoji(loc.category)} {loc.title}</p>
                           <p className="text-xs text-muted-foreground">{getCategoryLabel(loc.category)}</p>
                           {loc.description && <p className="text-xs mt-1">{loc.description}</p>}
@@ -238,54 +196,14 @@ const MemoryMap = () => {
 
           {/* Form */}
           {showForm && clickedPos && (
-            <div className="scrapbook-card p-6 mb-8">
-              <div className="tape-strip -top-2.5 left-8 rotate-[-5deg]" />
-              <form onSubmit={handleSubmit} className="space-y-4 pt-2">
-                <p className="font-handwritten text-base text-muted-foreground">
-                  📍 Lokasi: {clickedPos.lat.toFixed(4)}, {clickedPos.lng.toFixed(4)}
-                </p>
-                <input
-                  type="text"
-                  placeholder="Nama tempat..."
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  className="w-full px-4 py-3 rounded-sm bg-secondary border border-border text-foreground font-handwritten text-lg focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  required
-                />
-                <textarea
-                  placeholder="Ceritakan kenangan di sini... (opsional)"
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  className="w-full px-4 py-3 rounded-sm bg-secondary border border-border text-foreground font-handwritten text-lg focus:outline-none focus:ring-2 focus:ring-primary/50 min-h-[80px] resize-none"
-                />
-                <div className="flex gap-4 flex-wrap">
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="px-4 py-3 rounded-sm bg-secondary border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  >
-                    {CATEGORIES.map((cat) => (
-                      <option key={cat.value} value={cat.value}>
-                        {cat.emoji} {cat.label}
-                      </option>
-                    ))}
-                  </select>
-                  <input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    className="px-4 py-3 rounded-sm bg-secondary border border-border text-foreground text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="w-full py-3 rounded-sm bg-primary text-primary-foreground font-handwritten text-xl hover:opacity-90 transition disabled:opacity-50"
-                >
-                  {submitting ? "Menyimpan..." : "📌 Tandai lokasi ini"}
-                </button>
-              </form>
-            </div>
+            <MemoryMapForm
+              clickedPos={clickedPos}
+              onSuccess={() => {
+                resetForm();
+                fetchLocations();
+              }}
+              onCancel={resetForm}
+            />
           )}
 
           {/* Legend */}
