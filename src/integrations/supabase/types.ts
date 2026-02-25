@@ -197,6 +197,7 @@ export type Database = {
           latitude: number
           longitude: number
           memory_date: string | null
+          photo_url: string | null
           title: string
           user_id: string
         }
@@ -209,6 +210,7 @@ export type Database = {
           latitude: number
           longitude: number
           memory_date?: string | null
+          photo_url?: string | null
           title: string
           user_id: string
         }
@@ -221,6 +223,7 @@ export type Database = {
           latitude?: number
           longitude?: number
           memory_date?: string | null
+          photo_url?: string | null
           title?: string
           user_id?: string
         }
