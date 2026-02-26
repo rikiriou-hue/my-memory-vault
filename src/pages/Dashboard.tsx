@@ -6,6 +6,9 @@ import Navbar from "@/components/Navbar";
 import DayCounter from "@/components/DayCounter";
 import PageTransition from "@/components/PageTransition";
 import InvitePartnerDialog from "@/components/InvitePartnerDialog";
+import OnboardingChecklist from "@/components/OnboardingChecklist";
+import DailyLovePrompt from "@/components/DailyLovePrompt";
+import ActivityFeed from "@/components/ActivityFeed";
 import { motion } from "framer-motion";
 
 const Dashboard = () => {
@@ -163,6 +166,13 @@ const Dashboard = () => {
               <InvitePartnerDialog coupleId={coupleId} onJoined={fetchData} />
             )}
 
+          </div>
+
+          {/* 🎯 ENGAGEMENT WIDGETS */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-14">
+            <OnboardingChecklist coupleId={coupleId} hasPartner={hasPartner} />
+            <DailyLovePrompt />
+            <ActivityFeed coupleId={coupleId} />
           </div>
         </main>
       </PageTransition>
