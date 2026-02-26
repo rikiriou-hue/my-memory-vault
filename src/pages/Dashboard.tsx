@@ -9,6 +9,7 @@ import InvitePartnerDialog from "@/components/InvitePartnerDialog";
 import OnboardingChecklist from "@/components/OnboardingChecklist";
 import DailyLovePrompt from "@/components/DailyLovePrompt";
 import ActivityFeed from "@/components/ActivityFeed";
+import RelationshipStats from "@/components/RelationshipStats";
 import { motion } from "framer-motion";
 
 const Dashboard = () => {
@@ -122,6 +123,7 @@ const Dashboard = () => {
           {/* 🎯 ENGAGEMENT WIDGETS — paling atas */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-14">
             <OnboardingChecklist coupleId={coupleId} hasPartner={hasPartner} />
+            <RelationshipStats coupleId={coupleId} />
             <DailyLovePrompt />
             <ActivityFeed coupleId={coupleId} />
           </div>
