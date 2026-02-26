@@ -119,6 +119,13 @@ const Dashboard = () => {
             )}
           </div>
 
+          {/* 🎯 ENGAGEMENT WIDGETS — paling atas */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-14">
+            <OnboardingChecklist coupleId={coupleId} hasPartner={hasPartner} />
+            <DailyLovePrompt />
+            <ActivityFeed coupleId={coupleId} />
+          </div>
+
           {/* 📒 PINTEREST STYLE GRID */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 auto-rows-[220px]">
 
@@ -166,13 +173,6 @@ const Dashboard = () => {
               <InvitePartnerDialog coupleId={coupleId} onJoined={fetchData} />
             )}
 
-          </div>
-
-          {/* 🎯 ENGAGEMENT WIDGETS */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-14">
-            <OnboardingChecklist coupleId={coupleId} hasPartner={hasPartner} />
-            <DailyLovePrompt />
-            <ActivityFeed coupleId={coupleId} />
           </div>
         </main>
       </PageTransition>
