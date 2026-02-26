@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, Circle, Camera, Heart, Mail, MapPin, UserPlus, X, Sparkles } from "lucide-react";
+import confetti from "canvas-confetti";
 
 interface ChecklistItem {
   key: string;
@@ -84,12 +85,21 @@ const OnboardingChecklist = ({ coupleId, hasPartner }: Props) => {
     setItems(checklist);
     setLoading(false);
 
-    // Auto-dismiss if all done
     const allDone = checklist.every((i) => i.done);
     if (allDone) {
       const wasDismissed = localStorage.getItem("onboarding-dismissed");
       if (!wasDismissed) {
         localStorage.setItem("onboarding-dismissed", "true");
+        confetti({
+          particleCount: 150,
+          spread: 80,
+          origin: { y: 0.6 },
+          colors: ["#ff6b8a", "#ff8fa3", "#ffb3c1", "#ffd6e0", "#c9184a"],
+        });
+        setTimeout(() => {
+          confetti({ particleCount: 80, angle: 60, spread: 55, origin: { x: 0 }, colors: ["#ff6b8a", "#ff8fa3", "#ffb3c1"] });
+          confetti({ particleCount: 80, angle: 120, spread: 55, origin: { x: 1 }, colors: ["#ff6b8a", "#ff8fa3", "#ffb3c1"] });
+        }, 300);
       }
       setDismissed(true);
     } else {
